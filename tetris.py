@@ -83,30 +83,24 @@ class Tetris(object):
         self.score_level = constants.SCORE_LEVEL
         # create DAI2 device instance
         self.dai2 = DAI2Device()
-        # create a thread for dequeue pop
-        dequeue_pop_thread = threading.Thread(target=self.dequeue_pop)
-        dequeue_pop_thread.start()
-
-    # define a function that continuously pop data from the dequeue for thread
-    def dequeue_pop(self):
-        while True:
-            if len(self.dai2.queue) > 0:
-                # get the data from dequeue for game control
-                data = self.dai2.queue.popleft()
-                if data == 'l':
-                    self.active_block.move(-constants.BWIDTH,0)
-                elif data == 'r':
-                    self.active_block.move(constants.BWIDTH,0)
-                elif data == 'd':
-                    self.active_block.move(0,constants.BHEIGHT)
-                elif data == 's':
-                    self.active_block.rotate()
 
     def apply_action(self):
         """
         Get the event from the event queue and run the appropriate 
         action.
         """
+        # get the data from iot dequeue
+        if len(self.dai2.queue) > 0:
+            data = self.dai2.queue.popleft()
+            if data == 'l':
+                self.active_block.move(-constants.BWIDTH,0)
+            elif data == 'r':
+                self.active_block.move(constants.BWIDTH,0)
+            elif data == 'd':
+                self.active_block.move(0,constants.BHEIGHT)
+            elif data == 's':
+                self.active_block.rotate()
+
         # Take the event from the event queue.
         for ev in pygame.event.get():
             # Check if the close button was fired.
