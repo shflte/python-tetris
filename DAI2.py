@@ -3,6 +3,8 @@ import DAN
 import random
 import threading
 import sys
+from collections import deque
+
 
 class DAI2Device:
     def __init__(self):
@@ -27,6 +29,8 @@ class DAI2Device:
         threadx.daemon = True
         threadx.start()
 
+        self.queue = deque()
+
     def doRead(self):
         while True:
             while self.gotInput:
@@ -49,16 +53,16 @@ class DAI2Device:
             if self.allDead:
                 break
 
-    def send_message(self, val):
+    def enqueue(self, val):
         print("val sent: ", val)
         if val == 1:
-            self.s.send(b"l")
+            self.queue.append('l')
         elif val == 2:
-            self.s.send(b"d")
+            self.queue.append('d')
         elif val == 3:
-            self.s.send(b"r")
+            self.queue.append('r')
         elif val == 4:
-            self.s.send(b" ")
+            self.queue.append('s')
 
     def run(self):
         while True:
@@ -68,7 +72,7 @@ class DAI2Device:
                 value1 = DAN.pull("Dummy_Control")
                 if value1 is not None:
                     print(value1[0])
-                    self.send_message(value1[0])
+                    self.enqueue(value1[0])
 
                 if self.gotInput:
                     try:
