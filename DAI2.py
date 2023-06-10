@@ -6,7 +6,7 @@ import threading
 import sys
 import socket
 
-class DAN2Device:
+class DAI2Device:
     def __init__(self):
         self.ServerURL = "https://4.iottalk.tw"
         self.Reg_addr = None
