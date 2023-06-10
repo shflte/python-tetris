@@ -24,6 +24,8 @@ import random
 import math
 import block
 import constants
+import threading
+import socket
 
 class Tetris(object):
     """
@@ -73,6 +75,35 @@ class Tetris(object):
         self.speed = 1
         # The score level threshold
         self.score_level = constants.SCORE_LEVEL
+        # create a socket to recv the input from another process
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # create a thread to continuously recv the input from another process
+        self.recv_thread = threading.Thread(target=self.recv_input)
+        self.recv_thread.start()
+
+    def recv_input(self):
+        """
+        recv the input from another process
+        """
+        self.sock.bind(('127.0.0.1', 9876))
+        self.sock.listen(5)
+        while True:
+            conn, addr = self.sock.accept()
+            data = conn.recv(1024)
+            if data:
+                if data == b'q':
+                    self.done = True
+                elif data == b'p':
+                    self.pause()
+                elif data == b'r':
+                    self.active_block.move(constants.BWIDTH,0)
+                elif data == b'l':
+                    self.active_block.move(-constants.BWIDTH,0)
+                elif data == b'd':
+                    self.active_block.move(0,constants.BHEIGHT)
+                elif data == b' ':
+                    self.active_block.rotate()
+            conn.close()
 
     def apply_action(self):
         """
