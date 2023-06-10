@@ -24,12 +24,16 @@ class DAI2Device:
         self.gotInput = False
         self.theInput = "haha"
         self.allDead = False
-
-        threadx = threading.Thread(target=self.doRead)
-        threadx.daemon = True
-        threadx.start()
-
+        self.previous_input = 0
         self.queue = deque()
+
+        thread_read = threading.Thread(target=self.doRead)
+        thread_read.daemon = True
+        thread_read.start()
+
+        thread_send = threading.Thread(target=self.run)
+        thread_send.daemon = True
+        thread_send.start()
 
     def doRead(self):
         while True:
@@ -71,8 +75,12 @@ class DAI2Device:
                     break
                 value1 = DAN.pull("Dummy_Control")
                 if value1 is not None:
-                    print(value1[0])
-                    self.enqueue(value1[0])
+                    if value1[0] != self.previous_input:
+                        self.previous_input = value1[0]
+                        print(value1[0])
+                        self.enqueue(value1[0])
+                    else:
+                        print("same input")
 
                 if self.gotInput:
                     try:
