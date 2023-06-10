@@ -1,10 +1,8 @@
 import time
 import DAN
-import requests
 import random
 import threading
 import sys
-import socket
 
 class DAI2Device:
     def __init__(self):
@@ -28,9 +26,6 @@ class DAI2Device:
         threadx = threading.Thread(target=self.doRead)
         threadx.daemon = True
         threadx.start()
-
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect(("127.0.0.1", 9876))
 
     def doRead(self):
         while True:
